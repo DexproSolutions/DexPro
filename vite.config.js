@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/', // 👈 Important for Vercel and SPA routing
+  base: '/', // <-- ADD THIS LINE
   plugins: [react(), tailwindcss()]
 })
