@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import 'react-quill-new/dist/quill.core.css';
 import 'react-quill-new/dist/quill.snow.css';
+import Navbar from '../components/Navbar';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
@@ -38,7 +39,8 @@ const BlogDetails = () => {
   );
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 py-16 md:py-20 lg:py-24">
+    <main className="min-h-screen bg-[#f7f7fa] text-gray-900 py-16 md:py-20 lg:py-24">
+      <Navbar bgType="blog" />
       <article className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12"> {/* CHANGED: max-w-6xl and extended px */}
 
         {/* Blog Header (Title, Author, Date) */}
