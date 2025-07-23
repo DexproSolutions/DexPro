@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { title: 'Insights', link: '#insights' },
 ];
 
-function Navbar({ navItems = NAV_ITEMS, bgType = 'default' }) {
+function Navbar({ navItems = NAV_ITEMS, bgType = 'default', logo = Logo, showHome = true }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,7 +52,7 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default' }) {
         <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-2.5">
           {/* Logo */}
           <img
-            src={Logo}
+            src={logo}
             alt="Dexpro"
             className="cursor-pointer w-24 sm:w-28 md:w-32"
             onClick={() => navigate('/')}
@@ -60,6 +60,15 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default' }) {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex space-x-6 text-sm font-medium">
+            {showHome && (
+              <a
+                href="/"
+                onClick={(e) => { e.preventDefault(); navigate('/'); setMenuOpen(false); }}
+                className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
+              >
+                Home
+              </a>
+            )}
             {navItems.map(({ title, link }, idx) => (
               <a
                 key={idx}
@@ -85,7 +94,7 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default' }) {
 
           {/* Mobile Hamburger */}
           <button
-            className="md:hidden text-white ml-3"
+            className={`md:hidden ml-3 ${bgType === 'blog' ? 'text-gray-900' : 'text-white'}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle Menu"
           >
@@ -96,6 +105,15 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default' }) {
         {/* Mobile Nav Dropdown */}
         {menuOpen && (
           <div className={`md:hidden px-4 sm:px-6 pb-4 ${bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900' : 'bg-[#130129] text-sm font-medium'} space-y-3`}>
+            {showHome && (
+              <a
+                href="/"
+                onClick={(e) => { e.preventDefault(); navigate('/'); setMenuOpen(false); }}
+                className="block hover:text-purple-300 transition-colors duration-200"
+              >
+                Home
+              </a>
+            )}
             {navItems.map(({ title, link }, idx) => (
               <a
                 key={idx}
