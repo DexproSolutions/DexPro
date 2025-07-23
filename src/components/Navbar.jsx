@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { title: 'Projects', link: '#projects' },
   { title: 'About Us', link: '#about' },
   { title: 'Career', link: '#career' },
-  { title: 'Insights', link: '#insights' },
+  { title: 'Our Blog', link: '/blogs' },
 ];
 
 function Navbar({ navItems = NAV_ITEMS, bgType = 'default', logo = Logo, showHome = true }) {
@@ -70,14 +70,25 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default', logo = Logo, showHom
               </a>
             )}
             {navItems.map(({ title, link }, idx) => (
-              <a
-                key={idx}
-                href={link}
-                onClick={(e) => scrollToSection(e, link)}
-                className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
-              >
-                {title}
-              </a>
+              title === 'Our Blog' ? (
+                <a
+                  key={idx}
+                  href={link}
+                  onClick={(e) => { e.preventDefault(); navigate('/blogs'); setMenuOpen(false); }}
+                  className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
+                >
+                  {title}
+                </a>
+              ) : (
+                <a
+                  key={idx}
+                  href={link}
+                  onClick={(e) => scrollToSection(e, link)}
+                  className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
+                >
+                  {title}
+                </a>
+              )
             ))}
           </div>
 
@@ -115,14 +126,25 @@ function Navbar({ navItems = NAV_ITEMS, bgType = 'default', logo = Logo, showHom
               </a>
             )}
             {navItems.map(({ title, link }, idx) => (
-              <a
-                key={idx}
-                href={link}
-                onClick={(e) => scrollToSection(e, link)}
-                className="block hover:text-purple-300 transition-colors duration-200"
-              >
-                {title}
-              </a>
+              title === 'Our Blog' ? (
+                <a
+                  key={idx}
+                  href={link}
+                  onClick={(e) => { e.preventDefault(); navigate('/blogs'); setMenuOpen(false); }}
+                  className="block hover:text-purple-300 transition-colors duration-200"
+                >
+                  {title}
+                </a>
+              ) : (
+                <a
+                  key={idx}
+                  href={link}
+                  onClick={(e) => scrollToSection(e, link)}
+                  className="block hover:text-purple-300 transition-colors duration-200"
+                >
+                  {title}
+                </a>
+              )
             ))}
 
             <a

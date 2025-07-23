@@ -157,9 +157,13 @@ const AllArticles = () => {
               <h3 className="text-lg font-bold mb-4">Popular Posts</h3>
               <div className="space-y-4">
                 {articles.slice(0, 5).map((article, index) => (
-                  <div key={article.id || index} className="cursor-pointer hover:text-blue-600">
+                  <a
+                    key={article.id || index}
+                    href={`/blog/${article.slug}`}
+                    className="cursor-pointer hover:text-blue-600 block"
+                  >
                     <h4 className="font-medium">{article.title}</h4>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
