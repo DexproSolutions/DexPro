@@ -580,8 +580,8 @@ const stats = [
 
         {/* View All Articles Button */}
         <div className="mt-12">
-          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-6 rounded-md flex items-center cursor-pointer">
-            View All Articles <ArrowRight className="ml-2 w-5 h-5" />
+          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-5 rounded-md flex items-center cursor-pointer">
+            <a href='/blogs'>View All Articles</a>
           </button>
         </div>
       </div>
