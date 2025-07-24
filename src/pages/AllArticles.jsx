@@ -2,19 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Logo2 from '../assets/dex.png';
-
+import Footer from '../components/Footer';
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
-
-const categories = [
-  { name: "Technology", count: 45 },
-  { name: "Lifestyle", count: 38 },
-  { name: "Workspace", count: 27 },
-  { name: "Productivity", count: 31 },
-  { name: "Wellness", count: 24 },
-];
 
 const AllArticles = () => {
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -29,7 +22,17 @@ const AllArticles = () => {
         setLoading(false);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${API_DOMAIN}/api/categories/with-count`);
+        console.log('Fetched categories:', res.data.categories);
+        setCategories(res.data.categories || []);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
     fetchArticles();
+    fetchCategories();
   }, []);
 
   // Get top 5 featured post titles for sidebar
@@ -146,8 +149,8 @@ const AllArticles = () => {
                     key={index}
                     className="flex items-center justify-between cursor-pointer hover:text-blue-600"
                   >
-                    <span>{category.name}</span>
-                    <span className="text-gray-500 text-sm">{category.count}</span>
+                    <span>{category.category}</span>
+                    <span className="text-gray-500 text-sm">{category.post_count}</span>
                   </div>
                 ))}
               </div>
@@ -168,16 +171,17 @@ const AllArticles = () => {
               </div>
             </div>
             {/* Newsletter */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="rounded-xl shadow-lg p-6 bg-gradient-to-br from-[#9859fe] via-[#602fea] to-[#130129] text-white">
               <h3 className="text-lg font-bold mb-4">Newsletter</h3>
-              <p className="text-gray-600 mb-4">Stay updated with our latest posts</p>
+              <p className="mb-4 text-white/80">Stay updated with our latest posts</p>
               <div className="space-y-4">
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#9859fe] border-none shadow"
+                  style={{ background: 'rgba(255,255,255,0.9)' }}
                 />
-                <button className="w-full bg-blue-600 text-white py-2 font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap">
+                <button className="w-full bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white py-2 font-semibold rounded-lg hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap shadow">
                   Subscribe
                 </button>
               </div>
@@ -187,62 +191,22 @@ const AllArticles = () => {
         {/* Pagination */}
         <div className="mt-12 flex justify-center">
           <div className="flex space-x-2">
-            <button className="px-4 py-2 border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap rounded-lg">Previous</button>
+            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap border-none">Previous</button>
             {[1, 2, 3].map((page) => (
-              <button key={page} className={`px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${currentPage === page ? 'bg-blue-600 text-white' : ''}`}>{page}</button>
+              <button
+                key={page}
+                className={`px-4 py-2 rounded-lg font-semibold shadow cursor-pointer whitespace-nowrap border-none transition-colors ${currentPage === page ? 'bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white' : 'bg-white text-[#602fea] hover:bg-gradient-to-r hover:from-[#9859fe] hover:to-[#602fea] hover:text-white'}`}
+              >
+                {page}
+              </button>
             ))}
-            <button className="px-4 py-2 border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap rounded-lg">Next</button>
+            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap border-none">Next</button>
           </div>
         </div>
       </main>
       {/* Footer Section */}
-      <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="text-lg font-bold mb-4">About Us</h4>
-              <p className="text-gray-400">Exploring technology, lifestyle, and productivity in the digital age.</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <div className="text-gray-400 hover:text-white cursor-pointer">Home</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">About</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">Contact</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">Privacy Policy</div>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Follow Us</h4>
-              <div className="flex space-x-4">
-                <i className="fab fa-twitter text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-facebook text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-instagram text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-linkedin text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Newsletter</h4>
-              <div className="flex">
-                <input type="email" placeholder="Enter your email" className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 text-sm border-none" />
-                <button className="bg-blue-600 px-4 py-2 rounded-r-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-white">Subscribe</button>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2025 TechLife Blog. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-      {/* Back to Top Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-colors cursor-pointer flex items-center justify-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-        </svg>
-      </button>
+        <Footer />
+        {/* Back to Top Button */}
     </div>
   );
 };
