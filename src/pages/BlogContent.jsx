@@ -5,6 +5,7 @@ import 'react-quill-new/dist/quill.core.css';
 import 'react-quill-new/dist/quill.snow.css';
 import Navbar from '../components/Navbar';
 import Logo2 from '../assets/dex.png';
+import Footer from '../components/Footer';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
@@ -40,6 +41,7 @@ const BlogDetails = () => {
   );
 
   return (
+    <>
     <main className="min-h-screen bg-[#f7f7fa] text-gray-900 py-10 sm:py-14 md:py-16 lg:py-20">
       <Navbar bgType="blog" logo={Logo2} />
       <article className="max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12">
@@ -91,7 +93,10 @@ const BlogDetails = () => {
           <p className="text-gray-500 text-xs sm:text-sm">Thank you for reading.</p>
         </div>
       </article>
+     
     </main>
+     <Footer />
+     </>
   );
 };
 
