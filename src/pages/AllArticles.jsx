@@ -10,45 +10,86 @@ const AllArticles = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("");
+  const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+  const fallbackFeaturedPost = {
+  featured_image:
+    "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+  title: "The Future of Remote Work: Trends and Predictions for 2025",
+  author: "Sarah Johnson",
+  created_at: "2025-07-23T00:00:00Z",
+  short_desc:
+    "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+};
+  const [featuredPost, setFeaturedPost] = useState(fallbackFeaturedPost);
+
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await axios.get(`${API_DOMAIN}/api/blogs`);
-        setArticles(res.data.blogs || []);
-      } catch (error) {
-        console.error('Failed to fetch articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get(`${API_DOMAIN}/api/categories/with-count`);
-        console.log('Fetched categories:', res.data.categories);
-        setCategories(res.data.categories || []);
-      } catch (error) {
-        console.error('Failed to fetch categories:', error);
-      }
-    };
-    fetchArticles();
-    fetchCategories();
-  }, []);
+      const fetchArticles = async () => {
+        try {
+          const res = await axios.get(`${API_DOMAIN}/api/blogs`);
+          const allArticles = res.data.blogs || [];
+
+          // Sort from latest to oldest
+          const sortedArticles = [...allArticles].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+
+          setArticles(sortedArticles);
+
+          // Set featured post as the one with is_pinned: true
+          const pinnedPost = sortedArticles.find(post => post.is_pinned);
+          setFeaturedPost(
+            pinnedPost || {
+              featured_image:
+                "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+              title: "The Future of Remote Work: Trends and Predictions for 2025",
+              author: "Sarah Johnson",
+              created_at: "2025-07-23T00:00:00Z",
+              short_desc:
+                "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+            }
+          );
+        } catch (error) {
+          console.error('Failed to fetch articles:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const fetchCategories = async () => {
+        try {
+          const res = await axios.get(`${API_DOMAIN}/api/categories/with-count`);
+          console.log('Fetched categories:', res.data.categories);
+          setCategories(res.data.categories || []);
+        } catch (error) {
+          console.error('Failed to fetch categories:', error);
+        }
+      };
+
+      fetchArticles();
+      fetchCategories();
+    }, []);
 
   // Get top 5 featured post titles for sidebar
   const sidebarPopularPosts = articles.slice(0, 5).map(post => post.title);
 
   // Featured post: first article or fallback
-  const featuredPost = articles[0] || {
-    featured_image:
-      "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
-    title: "The Future of Remote Work: Trends and Predictions for 2025",
-    author: "Sarah Johnson",
-    created_at: "2025-07-23T00:00:00Z",
-    short_desc:
-      "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
-  };
+  // const featuredPost = articles[-1] || {
+  //   featured_image:
+  //     "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+  //   title: "The Future of Remote Work: Trends and Predictions for 2025",
+  //   author: "Sarah Johnson",
+  //   created_at: "2025-07-23T00:00:00Z",
+  //   short_desc:
+  //     "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+  // };
 
+  const POSTS_PER_PAGE = 6;
+  const paginatedArticles = articles.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+  const totalPages = Math.ceil(articles.length / POSTS_PER_PAGE);
+  
   return (
     <div className="min-h-screen bg-white font-inter">
       <Navbar bgType="blog" logo={Logo2} showHome={true} />
@@ -94,7 +135,7 @@ const AllArticles = () => {
           {/* Blog Posts Grid */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.slice(0).map((article) => (
+              {paginatedArticles.map((article) => (
                 <article
                   key={article.id}
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
@@ -177,32 +218,73 @@ const AllArticles = () => {
               <div className="space-y-4">
                 <input
                   type="email"
+                  value={newsletterEmail}
+                  onChange={e => setNewsletterEmail(e.target.value)}
                   placeholder="Enter your email"
                   className="w-full px-4 py-2 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#9859fe] border-none shadow"
                   style={{ background: 'rgba(255,255,255,0.9)' }}
                 />
-                <button className="w-full bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white py-2 font-semibold rounded-lg hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap shadow">
+                <button
+                  className="w-full bg-transparent border border-white text-white py-2 font-semibold rounded-lg hover:bg-white/10 transition-colors cursor-pointer whitespace-nowrap shadow"
+                  onClick={async () => {
+                    if (!newsletterEmail) {
+                      setNewsletterStatus("Please enter your email.");
+                      setShowNewsletterPopup(true);
+                      setTimeout(() => setShowNewsletterPopup(false), 2500);
+                      return;
+                    }
+                    try {
+                      await axios.post(`${API_DOMAIN}/api/newsletter`, { email: newsletterEmail });
+                      setNewsletterStatus("Subscribed successfully!");
+                      setNewsletterEmail("");
+                    } catch (err) {
+                      setNewsletterStatus("Subscription failed. Try again.");
+                    }
+                    setShowNewsletterPopup(true);
+                    setTimeout(() => setShowNewsletterPopup(false), 2500);
+                  }}
+                >
                   Subscribe
                 </button>
+                {showNewsletterPopup && (
+                  <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-[#9859fe] text-white px-6 py-3 rounded-xl shadow-lg z-50 text-center font-semibold animate-fade-in-out">
+                    {newsletterStatus}
+                  </div>
+                )}
               </div>
             </div>
           </aside>
         </div>
         {/* Pagination */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap border-none">Previous</button>
-            {[1, 2, 3].map((page) => (
+        {articles.length > POSTS_PER_PAGE && (
+          <div className="mt-12 flex justify-center">
+            <div className="flex space-x-2">
               <button
-                key={page}
-                className={`px-4 py-2 rounded-lg font-semibold shadow cursor-pointer whitespace-nowrap border-none transition-colors ${currentPage === page ? 'bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white' : 'bg-white text-[#602fea] hover:bg-gradient-to-r hover:from-[#9859fe] hover:to-[#602fea] hover:text-white'}`}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               >
-                {page}
+                Previous
               </button>
-            ))}
-            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap border-none">Next</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  className={`px-4 py-2 rounded-lg font-semibold shadow cursor-pointer whitespace-nowrap border-none transition-colors ${currentPage === page ? 'bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white' : 'bg-white text-[#602fea] hover:bg-gradient-to-r hover:from-[#9859fe] hover:to-[#602fea] hover:text-white'}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </main>
       {/* Footer Section */}
         <Footer />
