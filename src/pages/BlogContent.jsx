@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'react-quill-new/dist/quill.core.css';
 import 'react-quill-new/dist/quill.snow.css';
@@ -11,23 +11,29 @@ const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 const BlogDetails = () => {
   const { blogId } = useParams();
+  const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
+  const [prevBlog, setPrevBlog] = useState(null);
+  const [nextBlog, setNextBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        const res = await axios.get(`${API_DOMAIN}/api/blogs/${blogId}`);
-        setBlog(res.data.blog);
-      } catch (error) {
-        console.error('Failed to fetch blog:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const fetchBlog = async () => {
+        try {
+          setLoading(true);
+          const res = await axios.get(`${API_DOMAIN}/api/blogs/${blogId}`);
+          setBlog(res.data.blog);
+          setPrevBlog(res.data.prevBlog);
+          setNextBlog(res.data.nextBlog);
+        } catch (error) {
+          console.error('Failed to fetch blog:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchBlog();
-  }, [blogId]);
+      fetchBlog();
+    }, [blogId]);
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
@@ -89,12 +95,33 @@ const BlogDetails = () => {
         />
 
         {/* Optional: Add a subtle separator or a "Back to Blog" link */}
-        <div className="text-center mt-12 pt-8 border-t border-gray-200">
+        {/* <div className="text-center mt-12 pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-xs sm:text-sm">Thank you for reading.</p>
-        </div>
+        </div> */}
       </article>
      
+     {/* Navigation for Previous and Next Blogs */}
+      <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
+        {prevBlog ? (
+          <a
+            href={`/blog/${prevBlog.slug}`}
+            className=" hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          >
+            ← Previous
+          </a>
+        ) : <div />} {/* Keeps layout aligned */}
+
+        {nextBlog ? (
+          <a
+            href={`/blog/${nextBlog.slug}`}
+            className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          >
+            Next →
+          </a>
+        ): <div />} {/* Keeps layout aligned */}
+      </div>
     </main>
+      
      <Footer />
      </>
   );
