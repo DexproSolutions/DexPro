@@ -271,7 +271,7 @@ const stats = [
 
 const [form, setForm] = useState(initialForm);
 const [error, setError] = useState('');
-const [loading, setLoading] = useState(false);
+// const [loading, setLoading] = useState(false);
 const [success, setSuccess] = useState('');
 
 const onChange = (e) =>
