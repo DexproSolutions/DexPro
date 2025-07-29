@@ -124,9 +124,8 @@ const BlogDetails = () => {
       </div>
      </main>
 
-     <Footer />
-
-     </>
+  <Footer />
+  </>
   );
 };
 
