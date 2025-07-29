@@ -103,29 +103,32 @@ const BlogDetails = () => {
       </article>
      
      {/* Navigation for Previous and Next Blogs */}
-      <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
-        {prevBlog ? (
-          <a
-            href={`/blog/${prevBlog.slug}`}
-            className=" hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
-          >
-            ← Previous
-          </a>
-        ) : <div />} {/* Keeps layout aligned */}
+    <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
+      {prevBlog ? (
+        <a
+          href={`/blog/${prevBlog.slug}`}
+          className="hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white"
+        >
+          ← Previous
+        </a>
+      ) : (
+        <div />
+      )}
 
-        {nextBlog ? (
-          <a
-            href={`/blog/${nextBlog.slug}`}
-            className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
-          >
-            Next →
-          </a>
-        ): <div />} {/* Keeps layout aligned */}
-      </div>
-     </main>
+      {nextBlog ? (
+        <a
+          href={`/blog/${nextBlog.slug}`}
+          className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white"
+        >
+          Next →
+        </a>
+      ) : (
+        <div />
+      )}
+    </div>
+  </main>
 
   <Footer />
-  </>
   );
 };
 
