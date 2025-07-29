@@ -122,9 +122,10 @@ const BlogDetails = () => {
           </a>
         ): <div />} {/* Keeps layout aligned */}
       </div>
-    </main>
-      
+     </main>
+
      <Footer />
+
      </>
   );
 };
