@@ -48,7 +48,7 @@ const BlogDetails = () => {
   );
 
   return (
-
+    <>
     <main className="min-h-screen bg-white text-gray-900 py-16 md:py-20 lg:py-24">
       <article className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12"> {/* CHANGED: max-w-6xl and extended px */}
 
@@ -129,6 +129,7 @@ const BlogDetails = () => {
   </main>
 
   <Footer />
+  </>
   );
 };
 
