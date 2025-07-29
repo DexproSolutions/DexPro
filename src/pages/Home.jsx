@@ -35,6 +35,8 @@ import "swiper/css/navigation";
 import axios from 'axios';
 import Loader from '../components/Loader';
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 const Counter = ({ targetValue, label }) => {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -78,7 +80,7 @@ const Counter = ({ targetValue, label }) => {
 };
 
 async function downloadPdf(filename) {
-  const url = `http://localhost:3000/uploads/${filename}`;
+  const url = `${API_DOMAIN}/uploads/${filename}`;
 
   const res = await fetch(url, {
     credentials: 'include', // if you need cookies/auth
@@ -290,13 +292,13 @@ const onSubmit = async (e) => {
 
 try {
   const { data } = await axios.post(
-    `http://localhost:3000/ebook/download/${bookId}`,
+   `${API_DOMAIN}/ebook/download/${bookId}`,
     form,
     { headers: { 'Content-Type': 'application/json' } }
   );
 
   if (data?.pdfUrl) {
-    const fileUrl = `http://localhost:3000/uploads/${data.pdfUrl}`;
+    const fileUrl = `${API_DOMAIN}/uploads/${data.pdfUrl}`;
 
     // Fetch the PDF as a blob
     const fileResponse = await axios.get(fileUrl, { responseType: 'blob' });
@@ -352,7 +354,7 @@ try {
       useEffect(() => {
         (async () => {
           try {
-            const response = await axios.get("http://localhost:3000/ebook/get");
+            const response = await axios.get(`${API_DOMAIN}/ebook/get`);
             setBooks(response.data); // Access the actual data
           } catch (e) {
             console.error("Error fetching books:", e);
@@ -844,7 +846,7 @@ try {
                     {/* Ebook Image */}
                     <div className="w-full md:w-1/2 flex justify-center items-center">
                       <img
-                        src={`http://localhost:3000/uploads/${book.image}`}
+                        src={`${API_DOMAIN}/uploads/${book.image}`}
                         alt={`${book.title} cover`}
                         className="max-w-[90%] md:max-w-full h-auto object-contain"
                       />
