@@ -7,7 +7,9 @@ import {
   X,
   TrendingUp,
   ShieldCheck,
-  Headset
+  Headset,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
@@ -26,10 +28,12 @@ import e from '../assets/5.png';
 import WCU3 from '../assets/WCU3.gif';
 import WCU from '../assets/WCU.webp';
 import about from '../assets/About.gif';
-import ebook from '../assets/book3.png';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 import axios from 'axios';
-
-const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+import Loader from '../components/Loader';
 
 const Counter = ({ targetValue, label }) => {
   const [count, setCount] = useState(0);
@@ -72,6 +76,28 @@ const Counter = ({ targetValue, label }) => {
     </span>
   );
 };
+
+async function downloadPdf(filename) {
+  const url = `http://localhost:3000/uploads/${filename}`;
+
+  const res = await fetch(url, {
+    credentials: 'include', // if you need cookies/auth
+  });
+
+  if (!res.ok) throw new Error('Failed to download');
+
+  const blob = await res.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = filename; // forces download
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.URL.revokeObjectURL(blobUrl);
+}
 
 const Home = () => {
   const navigate = useNavigate();
@@ -228,16 +254,79 @@ const stats = [
   };
 
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-
+    const [bookId, setBookId] = useState()
   // Function to open the modal
-  const openModal = () => {
+  const openModal = (id) => {
     setIsModalOpen(true);
+    setBookId(id);
+    console.log(id)
   };
 
   // Function to close the modal
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  const initialForm = { username: '', email: '', phone: '' };
+
+const [form, setForm] = useState(initialForm);
+const [error, setError] = useState('');
+const [loading, setLoading] = useState(false);
+const [success, setSuccess] = useState('');
+
+const onChange = (e) =>
+  setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+const onSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+
+  if (!form.username || !form.email || !form.phone) {
+    setLoading(false);
+    setError('All fields are required.');
+    return;
+  }
+
+try {
+  const { data } = await axios.post(
+    `http://localhost:3000/ebook/download/${bookId}`,
+    form,
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+
+  if (data?.pdfUrl) {
+    const fileUrl = `http://localhost:3000/uploads/${data.pdfUrl}`;
+
+    // Fetch the PDF as a blob
+    const fileResponse = await axios.get(fileUrl, { responseType: 'blob' });
+
+    // Create a blob URL
+    const url = window.URL.createObjectURL(new Blob([fileResponse.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', data.pdfUrl); // Use original filename
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    setForm(initialForm);
+    setSuccess('Ebook successfully downloaded.');
+  } else {
+    setError('PDF file not found in server response.');
+  }
+} catch (err) {
+  const msg = err?.response?.data?.message || 'Something went wrong';
+  setError(msg);
+} finally {
+  setLoading(false);
+}
+
+};
+
 
   // Project Section
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -255,6 +344,25 @@ const stats = [
     selectedCategory === 'All'
       ? projects
       : projects.filter((project) => project.category === selectedCategory);
+
+        // Fetch ebooks from backend
+      const [books, setBooks] = useState([]);
+      const [booksLoading, setBooksLoading] = useState(true);
+
+      useEffect(() => {
+        (async () => {
+          try {
+            const response = await axios.get("http://localhost:3000/ebook/get");
+            setBooks(response.data); // Access the actual data
+          } catch (e) {
+            console.error("Error fetching books:", e);
+          } finally {
+            setBooksLoading(false);
+          }
+        })();
+      }, []);
+
+
 
   return (
     <div className="min-h-screen min-w-screen text-white font-inter">
@@ -643,68 +751,113 @@ const stats = [
       </div>      
 
         {/* Ebook CTA Section */}
-        <section className="py-16 sm:py-20 md:py-32 bg-[#140228] relative overflow-hidden" id="color-ebook">
+      {booksLoading ? (
+        <Loader/>
+      ) : books.length > 0 ? (
+        <section
+          className="py-16 sm:py-20 md:py-22 bg-[#140228] relative overflow-hidden"
+          id="color-ebook"
+        >
           <CursorGlow targetId="color-ebook" />
-          <div className="container mx-auto px-4 sm:px-6 flex flex-col-reverse md:flex-row items-center justify-between gap-12">
-            
-            {/* Text Content */}
-            <div className="w-full md:w-1/2 text-center md:text-left">
-              <span className="inline-block bg-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full mb-4 shadow-md">
-                Free Ebook
-              </span>
-              
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-white mb-6">
-                The Complete Guide to Digital Marketing in 2025
-              </h1>
+          <div className="container mx-auto px-4 sm:px-6 relative">
+            {/* Custom Nav Buttons */}
+            <button
+              className="ebook-prev absolute left-0 md:-left-3 top-1/2 -translate-y-1/2 z-30
+                        w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center
+                        hover:bg-white/20 transition"
+              aria-label="Previous"
+            >
+              <ChevronLeft />
+            </button>
 
-              <p className="text-base sm:text-lg text-gray-300 mb-6">
-                Learn the latest strategies, tools, and techniques to grow your business online.
-                This comprehensive guide covers everything from SEO to social media marketing.
-              </p>
+            <button
+              className="ebook-next absolute right-4 md:-right-1 top-1/2 -translate-y-1/2 z-30
+                        w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center
+                        hover:bg-white/20 transition"
+              aria-label="Next"
+            >
+              <ChevronRight />
+            </button>
 
-              <ul className="space-y-4 text-gray-200 mb-6 text-left md:text-left max-w-md mx-auto md:mx-0">
-                <li className="flex items-start">
-                  <Check className="text-green-400 mr-3 mt-1" />
-                  <span>200+ pages of actionable insights</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="text-green-400 mr-3 mt-1" />
-                  <span>Real-world case studies and examples</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="text-green-400 mr-3 mt-1" />
-                  <span>Step-by-step implementation guides</span>
-                </li>
-              </ul>
+            <Swiper
+              modules={[Navigation]}
+              spaceBetween={50}
+              slidesPerView={1}
+              navigation={{
+                nextEl: ".ebook-next",
+                prevEl: ".ebook-prev",
+              }}
+              onBeforeInit={(swiper) => {
+                swiper.params.navigation.nextEl = ".ebook-next";
+                swiper.params.navigation.prevEl = ".ebook-prev";
+              }}
+            >
+              {books.map((book) => (
+                <SwiperSlide key={book.id}>
+                  <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12 ml-4">
+                    {/* Text Content */}
+                    <div className="w-full md:w-1/2 text-center md:text-left">
+                      <span className="inline-block bg-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full mb-4 shadow-md">
+                        Free Ebook
+                      </span>
 
-              <div className="flex justify-center md:justify-start">
-                <button
-                  onClick={openModal}
-                  className="bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold text-md py-2 px-6 rounded cursor-pointer flex items-center"
-                >
-                  <Download className="mr-2" size={16} />
-                  Download
-                </button>
-              </div>
+                      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-white mb-6">
+                        {book.title}
+                      </h1>
 
-              <p className="text-sm text-gray-400 mt-4 text-center md:text-left">
-                By downloading, you agree to our{" "}
-                <a href="#" className="underline hover:text-gray-300">Privacy Policy</a> and{" "}
-                <a href="#" className="underline hover:text-gray-300">Terms of Service</a>.
-              </p>
-            </div>
+                      <p className="text-base sm:text-lg text-gray-300 mb-6">
+                        {book.description}
+                      </p>
 
-            {/* Ebook Image */}
-            <div className="w-full md:w-1/2 flex justify-center items-center">
-              <img
-                src={ebook}
-                alt="Ebook Cover"
-                className="max-w-[90%] md:max-w-full h-auto object-contain"
-              />
-            </div>
+                      <ul className="space-y-4 text-gray-200 mb-6 text-left md:text-left max-w-md mx-auto md:mx-0">
+                        {book.highlights?.map((point, index) => (
+                          <li className="flex items-start" key={index}>
+                            <Check className="text-green-400 mr-3 mt-1" />
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="flex justify-center md:justify-start">
+                        <button
+                          onClick={() => openModal(book.id)}
+                          className="bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold text-md py-2 px-6 rounded cursor-pointer flex items-center"
+                        >
+                          <Download className="mr-2" size={16} />
+                          Download
+                        </button>
+                      </div>
+
+                      <p className="text-sm text-gray-400 mt-4 text-center md:text-left">
+                        By downloading, you agree to our{" "}
+                        <a href="#" className="underline hover:text-gray-300">
+                          Privacy Policy
+                        </a>{" "}
+                        and{" "}
+                        <a href="#" className="underline hover:text-gray-300">
+                          Terms of Service
+                        </a>
+                        .
+                      </p>
+                    </div>
+
+                    {/* Ebook Image */}
+                    <div className="w-full md:w-1/2 flex justify-center items-center">
+                      <img
+                        src={`http://localhost:3000/uploads/${book.image}`}
+                        alt={`${book.title} cover`}
+                        className="max-w-[90%] md:max-w-full h-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </section>
-
+      ) : (
+        <div className="py-20 text-center text-white">No ebooks found.</div>
+      )}
 
 
       {/* Testimonial Carousel Section */}
@@ -771,7 +924,7 @@ const stats = [
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Get Your Free Ebook</h2>
 
             {/* Form fields */}
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={onSubmit}>
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Name
@@ -779,7 +932,10 @@ const stats = [
                 <input
                   type="text"
                   id="name"
-                  className="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  name="username"
+                  value={form.username}
+                  onChange={onChange}
+                  className="mt-1 block text-gray-600 w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter your name"
                 />
               </div>
@@ -790,7 +946,10 @@ const stats = [
                 <input
                   type="email"
                   id="email"
-                  className="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  name="email"
+                  value={form.email}
+                  onChange={onChange}                  
+                  className="mt-1 block text-gray-600 w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -801,18 +960,27 @@ const stats = [
                 <input
                   type="tel"
                   id="phone"
-                  className="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  name="phone"
+                  value={form.phone}
+                  onChange={onChange}                  
+                  className="mt-1 block text-gray-600 w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter your phone number"
                 />
               </div>
-
+                {error && (
+                  <p className="text-sm text-red-600">{error}</p>
+                )}
+                  {success && (
+                  <p className="text-sm text-green-600">{success}</p>
+                )}
               {/* Download button */}
                   <button
+                  type='submit'
                     className="w-fit bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold text-md py-2 px-7 rounded cursor-pointer flex items-center justify-center mx-auto md:mx-3"
                   >
-                    <Download className="mr-2" size={16} />
-                    Download
+                  {loading ? 'Processing…' : (<><Download className="mr-2" size={16} />Download</>)}
                   </button>
+
             </form>
           </div>
         </div>

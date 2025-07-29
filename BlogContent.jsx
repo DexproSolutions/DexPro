@@ -1,40 +1,30 @@
 import React, { useEffect, useState } from 'react';
-
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import 'react-quill-new/dist/quill.core.css';
 import 'react-quill-new/dist/quill.snow.css';
-import Navbar from '../components/Navbar';
-import Logo2 from '../assets/dex.png';
-import Footer from '../components/Footer';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 const BlogDetails = () => {
   const { blogId } = useParams();
-  const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
-  const [prevBlog, setPrevBlog] = useState(null);
-  const [nextBlog, setNextBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const fetchBlog = async () => {
-        try {
-          setLoading(true);
-          const res = await axios.get(`${API_DOMAIN}/api/blogs/${blogId}`);
-          setBlog(res.data.blog);
-          setPrevBlog(res.data.prevBlog);
-          setNextBlog(res.data.nextBlog);
-        } catch (error) {
-          console.error('Failed to fetch blog:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
+    const fetchBlog = async () => {
+      try {
+        const res = await axios.get(`${API_DOMAIN}/api/blogs/${blogId}`);
+        setBlog(res.data.blog);
+      } catch (error) {
+        console.error('Failed to fetch blog:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchBlog();
-    }, [blogId]);
+    fetchBlog();
+  }, [blogId]);
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
@@ -48,7 +38,6 @@ const BlogDetails = () => {
   );
 
   return (
-
     <main className="min-h-screen bg-white text-gray-900 py-16 md:py-20 lg:py-24">
       <article className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12"> {/* CHANGED: max-w-6xl and extended px */}
 
@@ -71,19 +60,18 @@ const BlogDetails = () => {
 
         {/* Featured Image Section */}
         {blog.featured_image && (
-
-          <div className="mb-8 sm:mb-10 md:mb-12">
+          <div className="mb-12 sm:mb-16">
             <img
               src={blog.featured_image}
               alt={blog.title}
-              className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover object-center rounded-2xl shadow-lg transition-transform duration-300 hover:scale-[1.01]"
+              className="w-full h-72 sm:h-96 md:h-[550px] object-cover object-center rounded-2xl shadow-lg transition-transform duration-300 hover:scale-[1.005]"
             />
           </div>
         )}
 
         {/* Blog Content Area */}
         <section
-          className="prose prose-sm sm:prose-base md:prose-lg lg:prose-xl max-w-none text-gray-800
+          className="prose prose-lg sm:prose-xl max-w-none text-gray-800
                      prose-headings:font-bold prose-headings:text-gray-900
                      prose-p:leading-relaxed prose-p:text-gray-700
                      prose-a:text-blue-700 hover:prose-a:text-blue-800 prose-a:font-medium hover:prose-a:underline
@@ -96,38 +84,12 @@ const BlogDetails = () => {
         />
 
         {/* Optional: Add a subtle separator or a "Back to Blog" link */}
-
-        {/* <div className="text-center mt-12 pt-8 border-t border-gray-200">
-          <p className="text-gray-500 text-xs sm:text-sm">Thank you for reading.</p>
-        </div> */}
+        <div className="text-center mt-20 pt-10 border-t border-gray-200">
+          <p className="text-gray-500 text-sm">Thank you for reading.</p>
+        </div>
       </article>
-     
-     {/* Navigation for Previous and Next Blogs */}
-      <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
-        {prevBlog ? (
-          <a
-            href={`/blog/${prevBlog.slug}`}
-            className=" hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
-          >
-            ← Previous
-          </a>
-        ) : <div />} {/* Keeps layout aligned */}
-
-        {nextBlog ? (
-          <a
-            href={`/blog/${nextBlog.slug}`}
-            className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
-          >
-            Next →
-          </a>
-        ): <div />} {/* Keeps layout aligned */}
-      </div>
     </main>
-      
-     <Footer />
-     </>
   );
 };
 
 export default BlogDetails;
-
