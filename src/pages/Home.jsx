@@ -17,7 +17,7 @@ import CursorGlow from '../components/CursorGlow';
 import services from '../Data/servicesData';
 import ServiceCard from '../cards/ServiceCard';
 import projects from '../Data/projectData';
-import blogPosts from '../Data/blogPosts';
+// import blogPosts from '../Data/blogPosts';
 import TestimonialCard from '../cards/TestimonialCard';
 import testimonials from '../Data/testimonialsData';
 import a from '../assets/1.png';
@@ -34,6 +34,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import axios from 'axios';
 import Loader from '../components/Loader';
+
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 const Counter = ({ targetValue, label }) => {
   const [count, setCount] = useState(0);
@@ -78,7 +80,7 @@ const Counter = ({ targetValue, label }) => {
 };
 
 async function downloadPdf(filename) {
-  const url = `http://localhost:3000/uploads/${filename}`;
+  const url = `${API_DOMAIN}/uploads/${filename}`;
 
   const res = await fetch(url, {
     credentials: 'include', // if you need cookies/auth
@@ -103,6 +105,25 @@ const Home = () => {
   const navigate = useNavigate();
   
   const location = useLocation();
+  
+  const [blogPosts, setBlogs] = useState([]);
+   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchFeaturedBlogs = async () => {
+      try {
+        const res = await axios.get(`${API_DOMAIN}/api/featured`);
+        if (res.data.success) {
+          setBlogs(res.data.blogs);
+        }
+      } catch (err) {
+        console.error('Failed to fetch blogs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedBlogs();
+  }, []);
 
   useEffect(() => {
     const target = sessionStorage.getItem('scrollTarget');
@@ -252,7 +273,7 @@ const stats = [
 
 const [form, setForm] = useState(initialForm);
 const [error, setError] = useState('');
-const [loading, setLoading] = useState(false);
+// const [loading, setLoading] = useState(false);
 const [success, setSuccess] = useState('');
 
 const onChange = (e) =>
@@ -271,13 +292,13 @@ const onSubmit = async (e) => {
 
 try {
   const { data } = await axios.post(
-    `http://localhost:3000/ebook/download/${bookId}`,
+   `${API_DOMAIN}/ebook/download/${bookId}`,
     form,
     { headers: { 'Content-Type': 'application/json' } }
   );
 
   if (data?.pdfUrl) {
-    const fileUrl = `http://localhost:3000/uploads/${data.pdfUrl}`;
+    const fileUrl = `${API_DOMAIN}/uploads/${data.pdfUrl}`;
 
     // Fetch the PDF as a blob
     const fileResponse = await axios.get(fileUrl, { responseType: 'blob' });
@@ -333,7 +354,7 @@ try {
       useEffect(() => {
         (async () => {
           try {
-            const response = await axios.get("http://localhost:3000/ebook/get");
+            const response = await axios.get(`${API_DOMAIN}/ebook/get`);
             setBooks(response.data); // Access the actual data
           } catch (e) {
             console.error("Error fetching books:", e);
@@ -630,7 +651,7 @@ try {
         {/* Header Section */}
         <div className="text-center mb-12">
           <p className="text-[#ff6b6b] uppercase text-sm font-semibold mb-2">Our Blog</p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Latest Insights & News</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Our Blog</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Stay updated with the latest trends, insights, and news from the digital world.
           </p>
@@ -640,21 +661,27 @@ try {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {blogPosts.map((post) => (
             <div key={post.id} className="bg-white rounded-xl shadow-sm overflow-hidden max-w-sm transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl">
-              <img src={post.imageUrl} alt={post.title} className="w-full h-48 object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/400x200/8A2BE2/FFFFFF?text=Image+Not+Found'; }} />
+              <img src={post.featured_image} alt={post.title} className="w-full h-48 object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/400x200/8A2BE2/FFFFFF?text=Image+Not+Found'; }} />
               <div className="p-6">
                 <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
                   <span className="font-medium text-purple-700">{post.category}</span>
-                  <span>{post.date}</span>
+                 <span>
+                  {new Date(post.created_at).toLocaleDateString("en-US", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">{post.title}</h2>
-                <p className="text-gray-600 text-base mb-4">{post.description}</p>
+                <p className="text-gray-600 text-base mb-4">{post.short_desc}</p>
                 <div className="flex justify-between items-center">
-                  <a href="#" className="text-[#140228] font-medium flex items-center group">
+                  <a  href={`/blog/${post.slug}`} className="text-[#140228] font-medium flex items-center group">
                     Read More <ArrowRight className="ml-1 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </a>
-                  <span className="text-sm text-gray-500 flex items-center">
+                  {/* <span className="text-sm text-gray-500 flex items-center">
                     <Clock className="w-4 h-4 mr-1" /> {post.readTime}
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>
@@ -663,8 +690,8 @@ try {
 
         {/* View All Articles Button */}
         <div className="mt-12">
-          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-6 rounded-md flex items-center cursor-pointer">
-            View All Articles <ArrowRight className="ml-2 w-5 h-5" />
+          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-5 rounded-md flex items-center cursor-pointer">
+            <a href='/blogs'>View All Articles</a>
           </button>
         </div>
       </div>
@@ -819,7 +846,7 @@ try {
                     {/* Ebook Image */}
                     <div className="w-full md:w-1/2 flex justify-center items-center">
                       <img
-                        src={`http://localhost:3000/uploads/${book.image}`}
+                        src={`${API_DOMAIN}/uploads/${book.image}`}
                         alt={`${book.title} cover`}
                         className="max-w-[90%] md:max-w-full h-auto object-contain"
                       />
