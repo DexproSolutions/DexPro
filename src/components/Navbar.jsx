@@ -8,23 +8,20 @@ const NAV_ITEMS = [
   { title: 'Services', link: '#services' },
   { title: 'Projects', link: '#projects' },
   { title: 'About Us', link: '#about' },
-  { title: 'Career', link: '/career' }, // Route navigation
+  { title: 'Career', link: '/career' },
   { title: 'Our Blog', link: '/blogs' },
 ];
 
-export default function Navbar() {
-
+export default function Navbar({ bgType = 'default' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Scroll or route based on link type
   const scrollToSection = (e, link) => {
     e.preventDefault();
 
     if (!link.startsWith('#')) {
-      // If it's a route (like '/jobs')
       navigate(link);
       setMenuOpen(false);
       return;
@@ -49,20 +46,17 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Background logic
   const navBg = isScrolled
     ? (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900 shadow' : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white')
     : (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900' : 'bg-transparent text-white');
 
   return (
     <div>
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${navBg}`}
-      >
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${navBg}`}>
         <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3">
           {/* Logo */}
           <img
-            src={logo}
+            src={Logo}
             alt="Dexpro"
             className="cursor-pointer w-24 sm:w-28 md:w-32"
             onClick={() => navigate('/')}
@@ -72,49 +66,30 @@ export default function Navbar() {
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-6 text-sm font-medium">
             {NAV_ITEMS.map(({ title, link }, idx) => (
               <a
-                href="/"
-                onClick={(e) => { e.preventDefault(); navigate('/'); setMenuOpen(false); }}
+                key={idx}
+                href={link}
+                onClick={(e) => {
+                  title === 'Our Blog' ? (navigate('/blogs')) : scrollToSection(e, link);
+                }}
                 className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
               >
-                Home
+                {title}
               </a>
-            )}
-            {navItems.map(({ title, link }, idx) => (
-              title === 'Our Blog' ? (
-                <a
-                  key={idx}
-                  href={link}
-                  onClick={(e) => { e.preventDefault(); navigate('/blogs'); setMenuOpen(false); }}
-                  className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
-                >
-                  {title}
-                </a>
-              ) : (
-                <a
-                  key={idx}
-                  href={link}
-                  onClick={(e) => scrollToSection(e, link)}
-                  className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
-                >
-                  {title}
-                </a>
-              )
             ))}
           </div>
-            {/* Contact Us (Desktop Only) */}
-            <a
-              href="#contact"
-              onClick={(e) => scrollToSection(e, '#contact')}
-              className="bg-gradient-to-r from-[#9859fe] to-[#602fea] px-4 py-2 rounded-lg flex items-center gap-2 text-white text-sm"
-            >
-              <Phone size={16} />
-              Contact Us
-            </a>          
 
+          {/* Contact Us (Desktop Only) */}
+          <a
+            href="#contact"
+            onClick={(e) => scrollToSection(e, '#contact')}
+            className="hidden md:flex bg-gradient-to-r from-[#9859fe] to-[#602fea] px-4 py-2 rounded-lg items-center gap-2 text-white text-sm"
+          >
+            <Phone size={16} />
+            Contact Us
+          </a>
 
           {/* Mobile Menu Toggle */}
           <button
-
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-white"
             aria-label="Toggle Menu"
@@ -127,35 +102,22 @@ export default function Navbar() {
         {menuOpen && (
           <div className="md:hidden px-4 sm:px-6 pb-4 bg-[#130129] text-sm font-medium space-y-4">
             {NAV_ITEMS.map(({ title, link }, idx) => (
-
               <a
-                href="/"
-                onClick={(e) => { e.preventDefault(); navigate('/'); setMenuOpen(false); }}
+                key={idx}
+                href={link}
+                onClick={(e) => {
+                  if (title === 'Our Blog') {
+                    e.preventDefault();
+                    navigate('/blogs');
+                    setMenuOpen(false);
+                  } else {
+                    scrollToSection(e, link);
+                  }
+                }}
                 className="block hover:text-purple-300 transition-colors duration-200"
               >
-                Home
+                {title}
               </a>
-            )}
-            {navItems.map(({ title, link }, idx) => (
-              title === 'Our Blog' ? (
-                <a
-                  key={idx}
-                  href={link}
-                  onClick={(e) => { e.preventDefault(); navigate('/blogs'); setMenuOpen(false); }}
-                  className="block hover:text-purple-300 transition-colors duration-200"
-                >
-                  {title}
-                </a>
-              ) : (
-                <a
-                  key={idx}
-                  href={link}
-                  onClick={(e) => scrollToSection(e, link)}
-                  className="block hover:text-purple-300 transition-colors duration-200"
-                >
-                  {title}
-                </a>
-              )
             ))}
             <a
               href="#contact"
