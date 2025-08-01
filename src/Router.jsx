@@ -29,7 +29,7 @@ const Router = createBrowserRouter([
         path:'/career-detail/:id',
         element:<CareerDetail/>
     },
-
+    {
         path:'/blogs',
         element: <AllArticles/>
     }
