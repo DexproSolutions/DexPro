@@ -2,50 +2,94 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Logo2 from '../assets/dex.png';
-
+import Footer from '../components/Footer';
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
-
-const categories = [
-  { name: "Technology", count: 45 },
-  { name: "Lifestyle", count: 38 },
-  { name: "Workspace", count: 27 },
-  { name: "Productivity", count: 31 },
-  { name: "Wellness", count: 24 },
-];
 
 const AllArticles = () => {
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("");
+  const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+  const fallbackFeaturedPost = {
+  featured_image:
+    "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+  title: "The Future of Remote Work: Trends and Predictions for 2025",
+  author: "Sarah Johnson",
+  created_at: "2025-07-23T00:00:00Z",
+  short_desc:
+    "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+};
+  const [featuredPost, setFeaturedPost] = useState(fallbackFeaturedPost);
+
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await axios.get(`${API_DOMAIN}/api/blogs`);
-        setArticles(res.data.blogs || []);
-      } catch (error) {
-        console.error('Failed to fetch articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticles();
-  }, []);
+      const fetchArticles = async () => {
+        try {
+          const res = await axios.get(`${API_DOMAIN}/api/blogs`);
+          const allArticles = res.data.blogs || [];
+
+          // Sort from latest to oldest
+          const sortedArticles = [...allArticles].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+
+          setArticles(sortedArticles);
+
+          // Set featured post as the one with is_pinned: true
+          const pinnedPost = sortedArticles.find(post => post.is_pinned);
+          setFeaturedPost(
+            pinnedPost || {
+              featured_image:
+                "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+              title: "The Future of Remote Work: Trends and Predictions for 2025",
+              author: "Sarah Johnson",
+              created_at: "2025-07-23T00:00:00Z",
+              short_desc:
+                "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+            }
+          );
+        } catch (error) {
+          console.error('Failed to fetch articles:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const fetchCategories = async () => {
+        try {
+          const res = await axios.get(`${API_DOMAIN}/api/categories/with-count`);
+          console.log('Fetched categories:', res.data.categories);
+          setCategories(res.data.categories || []);
+        } catch (error) {
+          console.error('Failed to fetch categories:', error);
+        }
+      };
+
+      fetchArticles();
+      fetchCategories();
+    }, []);
 
   // Get top 5 featured post titles for sidebar
   const sidebarPopularPosts = articles.slice(0, 5).map(post => post.title);
 
   // Featured post: first article or fallback
-  const featuredPost = articles[0] || {
-    featured_image:
-      "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
-    title: "The Future of Remote Work: Trends and Predictions for 2025",
-    author: "Sarah Johnson",
-    created_at: "2025-07-23T00:00:00Z",
-    short_desc:
-      "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
-  };
+  // const featuredPost = articles[-1] || {
+  //   featured_image:
+  //     "https://readdy.ai/api/search-image?query=modern%20minimalist%20workspace%20with%20laptop%20computer%20and%20coffee%20cup%20on%20white%20desk%2C%20soft%20natural%20lighting%2C%20clean%20and%20organized%20setting%2C%20professional%20photography&width=1200&height=600&seq=1&orientation=landscape",
+  //   title: "The Future of Remote Work: Trends and Predictions for 2025",
+  //   author: "Sarah Johnson",
+  //   created_at: "2025-07-23T00:00:00Z",
+  //   short_desc:
+  //     "Explore how remote work continues to evolve and shape the future of our professional lives. From virtual reality meetings to AI-powered productivity tools...",
+  // };
 
+  const POSTS_PER_PAGE = 6;
+  const paginatedArticles = articles.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+  const totalPages = Math.ceil(articles.length / POSTS_PER_PAGE);
+  
   return (
     <div className="min-h-screen bg-white font-inter">
       <Navbar bgType="blog" logo={Logo2} showHome={true} />
@@ -91,7 +135,7 @@ const AllArticles = () => {
           {/* Blog Posts Grid */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.slice(0).map((article) => (
+              {paginatedArticles.map((article) => (
                 <article
                   key={article.id}
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
@@ -146,8 +190,8 @@ const AllArticles = () => {
                     key={index}
                     className="flex items-center justify-between cursor-pointer hover:text-blue-600"
                   >
-                    <span>{category.name}</span>
-                    <span className="text-gray-500 text-sm">{category.count}</span>
+                    <span>{category.category}</span>
+                    <span className="text-gray-500 text-sm">{category.post_count}</span>
                   </div>
                 ))}
               </div>
@@ -168,81 +212,83 @@ const AllArticles = () => {
               </div>
             </div>
             {/* Newsletter */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="rounded-xl shadow-lg p-6 bg-gradient-to-br from-[#9859fe] via-[#602fea] to-[#130129] text-white">
               <h3 className="text-lg font-bold mb-4">Newsletter</h3>
-              <p className="text-gray-600 mb-4">Stay updated with our latest posts</p>
+              <p className="mb-4 text-white/80">Stay updated with our latest posts</p>
               <div className="space-y-4">
                 <input
                   type="email"
+                  value={newsletterEmail}
+                  onChange={e => setNewsletterEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#9859fe] border-none shadow"
+                  style={{ background: 'rgba(255,255,255,0.9)' }}
                 />
-                <button className="w-full bg-blue-600 text-white py-2 font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap">
+                <button
+                  className="w-full bg-transparent border border-white text-white py-2 font-semibold rounded-lg hover:bg-white/10 transition-colors cursor-pointer whitespace-nowrap shadow"
+                  onClick={async () => {
+                    if (!newsletterEmail) {
+                      setNewsletterStatus("Please enter your email.");
+                      setShowNewsletterPopup(true);
+                      setTimeout(() => setShowNewsletterPopup(false), 2500);
+                      return;
+                    }
+                    try {
+                      await axios.post(`${API_DOMAIN}/api/newsletter`, { email: newsletterEmail });
+                      setNewsletterStatus("Subscribed successfully!");
+                      setNewsletterEmail("");
+                    } catch (err) {
+                      setNewsletterStatus("Subscription failed. Try again.");
+                    }
+                    setShowNewsletterPopup(true);
+                    setTimeout(() => setShowNewsletterPopup(false), 2500);
+                  }}
+                >
                   Subscribe
                 </button>
+                {showNewsletterPopup && (
+                  <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-[#9859fe] text-white px-6 py-3 rounded-xl shadow-lg z-50 text-center font-semibold animate-fade-in-out">
+                    {newsletterStatus}
+                  </div>
+                )}
               </div>
             </div>
           </aside>
         </div>
         {/* Pagination */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap rounded-lg">Previous</button>
-            {[1, 2, 3].map((page) => (
-              <button key={page} className={`px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${currentPage === page ? 'bg-blue-600 text-white' : ''}`}>{page}</button>
-            ))}
-            <button className="px-4 py-2 border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer whitespace-nowrap rounded-lg">Next</button>
+        {articles.length > POSTS_PER_PAGE && (
+          <div className="mt-12 flex justify-center">
+            <div className="flex space-x-2">
+              <button
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  className={`px-4 py-2 rounded-lg font-semibold shadow cursor-pointer whitespace-nowrap border-none transition-colors ${currentPage === page ? 'bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white' : 'bg-white text-[#602fea] hover:bg-gradient-to-r hover:from-[#9859fe] hover:to-[#602fea] hover:text-white'}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white font-semibold shadow hover:from-[#602fea] hover:to-[#9859fe] transition-colors cursor-pointer whitespace-nowrap"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </main>
       {/* Footer Section */}
-      <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="text-lg font-bold mb-4">About Us</h4>
-              <p className="text-gray-400">Exploring technology, lifestyle, and productivity in the digital age.</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <div className="text-gray-400 hover:text-white cursor-pointer">Home</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">About</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">Contact</div>
-                <div className="text-gray-400 hover:text-white cursor-pointer">Privacy Policy</div>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Follow Us</h4>
-              <div className="flex space-x-4">
-                <i className="fab fa-twitter text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-facebook text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-instagram text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-                <i className="fab fa-linkedin text-gray-400 hover:text-white text-xl cursor-pointer"></i>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">Newsletter</h4>
-              <div className="flex">
-                <input type="email" placeholder="Enter your email" className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 text-sm border-none" />
-                <button className="bg-blue-600 px-4 py-2 rounded-r-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-white">Subscribe</button>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2025 TechLife Blog. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-      {/* Back to Top Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-colors cursor-pointer flex items-center justify-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-        </svg>
-      </button>
+        <Footer />
+        {/* Back to Top Button */}
     </div>
   );
 };
