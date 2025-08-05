@@ -5,14 +5,15 @@ import { Phone, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
+  { title: 'Home', link: '/' },
   { title: 'Services', link: '#services' },
   { title: 'Projects', link: '#projects' },
   { title: 'About Us', link: '#about' },
-  { title: 'Career', link: '#career' },
-  { title: 'Insights', link: '#insights' },
+  { title: 'Career', link: '/career' },
+  { title: 'Our Blog', link: '/blogs' },
 ];
 
-function Navbar() {
+export default function Navbar({ bgType = '' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,6 +21,13 @@ function Navbar() {
 
   const scrollToSection = (e, link) => {
     e.preventDefault();
+
+    if (!link.startsWith('#')) {
+      navigate(link);
+      setMenuOpen(false);
+      return;
+    }
+
     const section = document.querySelector(link);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
@@ -39,16 +47,18 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navBg = isScrolled
+    ? bgType === 'blog'
+      ? 'bg-[#f7f7fa] text-gray-900 shadow'
+      : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white'
+    : bgType === 'blog'
+      ? 'bg-[#f7f7fa] text-gray-900'
+      : 'bg-transparent text-white';
+
   return (
     <div>
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm'
-            : 'bg-transparent'
-        } text-white`}
-      >
-        <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-2.5">
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${navBg}`}>
+        <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3">
           {/* Logo */}
           <img
             src={Logo}
@@ -57,8 +67,8 @@ function Navbar() {
             onClick={() => navigate('/')}
           />
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex space-x-6 text-sm font-medium">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-6 text-sm font-medium">
             {NAV_ITEMS.map(({ title, link }, idx) => (
               <a
                 key={idx}
@@ -71,30 +81,29 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Contact Us Button (Desktop only) */}
+          {/* Contact Us (Desktop Only) */}
           <a
             href="#contact"
-            aria-label="Contact Us"
             onClick={(e) => scrollToSection(e, '#contact')}
-            className="hidden md:flex cursor-pointer bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white text-sm px-4 py-1.5 rounded-lg items-center gap-2"
+            className="hidden md:flex bg-gradient-to-r from-[#9859fe] to-[#602fea] px-4 py-2 rounded-lg items-center gap-2 text-white text-sm"
           >
-            <Phone className="w-4 h-4 text-white" />
+            <Phone size={16} />
             Contact Us
           </a>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-white ml-3"
             onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden text-white"
             aria-label="Toggle Menu"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Mobile Nav Dropdown */}
+        {/* Mobile Navigation Menu */}
         {menuOpen && (
-          <div className="md:hidden px-4 sm:px-6 pb-4 bg-[#130129] text-sm font-medium space-y-3">
+          <div className="md:hidden px-4 sm:px-6 pb-4 bg-[#130129] text-sm font-medium space-y-4">
             {NAV_ITEMS.map(({ title, link }, idx) => (
               <a
                 key={idx}
@@ -105,13 +114,12 @@ function Navbar() {
                 {title}
               </a>
             ))}
-
             <a
               href="#contact"
               onClick={(e) => scrollToSection(e, '#contact')}
-              aria-label="Contact Us"
-              className="block text-white text-sm"
+              className="block bg-gradient-to-r from-[#9859fe] to-[#602fea] px-4 py-2 rounded-lg text-white text-center"
             >
+              <Phone size={16} className="inline mr-2" />
               Contact Us
             </a>
           </div>
@@ -119,9 +127,7 @@ function Navbar() {
       </nav>
 
       {/* Spacer */}
-      <div className="min-h-[72px] md:min-h-[80px]" />
+      <div className="min-h-[72px] md:min-h-[84px]" />
     </div>
   );
 }
-
-export default Navbar;
