@@ -85,7 +85,7 @@ const Home = () => {
       try {
         const res = await axios.get(`${API_DOMAIN}/api/featured`);
         if (res.data.success) {
-          setBlogs(res.data.blogs);
+          setBlogs(res.data.blogs.slice(0, 3));
         }
       } catch (err) {
         console.error('Failed to fetch blogs:', err);
@@ -580,8 +580,8 @@ const stats = [
 
         {/* View All Articles Button */}
         <div className="mt-12">
-          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-5 rounded-md flex items-center cursor-pointer">
-            <a href='/blogs'>View All Articles</a>
+          <button className="bg-[#140228] hover:bg-[#20033d] text-white font-semibold py-3 px-6 rounded-md flex items-center cursor-pointer">
+            View All Articles <ArrowRight className="ml-2 w-5 h-5" />
           </button>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { Phone, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { title: 'Home', link: '/' },
+  // { title: 'Home', link: '/' },
   { title: 'Services', link: '#services' },
   { title: 'Projects', link: '#projects' },
   { title: 'About Us', link: '#about' },
