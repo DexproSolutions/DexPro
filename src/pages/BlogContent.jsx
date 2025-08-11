@@ -103,22 +103,30 @@ const BlogDetails = () => {
      {/* Navigation for Previous and Next Blogs */}
       <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
         {prevBlog ? (
-          <a
-            href={`/blog/${prevBlog.slug}`}
-            className=" hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          <button
+            onClick={() => window.location.href = `/blog/${prevBlog.slug}`}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+            aria-label="Previous Blog"
           >
-            ← Previous
-          </a>
-        ) : <div />} {/* Keeps layout aligned */}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Prev Blog
+          </button>
+        ) : <div />}
 
         {nextBlog ? (
-          <a
-            href={`/blog/${nextBlog.slug}`}
-            className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          <button
+            onClick={() => window.location.href = `/blog/${nextBlog.slug}`}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+            aria-label="Next Blog"
           >
-            Next →
-          </a>
-        ): <div />} {/* Keeps layout aligned */}
+            Next Blog
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        ) : <div />}
       </div>
     </main>
       
