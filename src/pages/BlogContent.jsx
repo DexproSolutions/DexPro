@@ -36,13 +36,25 @@ const BlogDetails = () => {
     }, [blogId]);
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-      <div className="text-center text-gray-600 text-xl font-medium animate-pulse">Loading blog content...</div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#f7f7fa] to-[#e6e6ff] p-6">
+      <div className="flex flex-col items-center gap-4">
+        <svg className="animate-spin h-10 w-10 text-[#9859fe]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <div className="text-center text-[#602fea] text-xl font-semibold animate-pulse drop-shadow">Loading blog content...</div>
+      </div>
     </div>
   );
   if (!blog) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-      <div className="text-center text-red-600 text-xl font-semibold">Blog not found. It might have been moved or deleted.</div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#f7f7fa] to-[#e6e6ff] p-6">
+      <div className="flex flex-col items-center gap-4">
+        <svg className="h-10 w-10 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9l-6 6m0-6l6 6" />
+        </svg>
+        <div className="text-center text-red-600 text-xl font-bold drop-shadow">Blog not found.<br/>It might have been moved or deleted.</div>
+      </div>
     </div>
   );
 
@@ -103,22 +115,30 @@ const BlogDetails = () => {
      {/* Navigation for Previous and Next Blogs */}
       <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
         {prevBlog ? (
-          <a
-            href={`/blog/${prevBlog.slug}`}
-            className=" hover:bg-[#612feab6] font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          <button
+            onClick={() => window.location.href = `/blog/${prevBlog.slug}`}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+            aria-label="Previous Blog"
           >
-            ← Previous
-          </a>
-        ) : <div />} {/* Keeps layout aligned */}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Prev Blog
+          </button>
+        ) : <div />}
 
         {nextBlog ? (
-          <a
-            href={`/blog/${nextBlog.slug}`}
-            className="font-medium text-sm sm:text-base px-4 py-2 rounded-md transition  bg-gradient-to-r from-[#9859fe] to-[#602fea] text-white "
+          <button
+            onClick={() => window.location.href = `/blog/${nextBlog.slug}`}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+            aria-label="Next Blog"
           >
-            Next →
-          </a>
-        ): <div />} {/* Keeps layout aligned */}
+            Next Blog
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        ) : <div />}
       </div>
     </main>
       
