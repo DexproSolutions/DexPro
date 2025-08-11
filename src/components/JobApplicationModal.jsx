@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import axios from 'axios';
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 export default function JobApplicationModal({ onClose, jobId }) {
   const [formData, setFormData] = useState({
@@ -35,7 +36,7 @@ export default function JobApplicationModal({ onClose, jobId }) {
     form.append('jobId', jobId);
 
     try {
-      const response = await axios.post(`http://localhost:3000/applicant/save/${jobId}`, form, {
+      const response = await axios.post(`${API_DOMAIN}/applicant/save/${jobId}`, form, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -175,3 +176,4 @@ export default function JobApplicationModal({ onClose, jobId }) {
     </div>
   );
 }
+

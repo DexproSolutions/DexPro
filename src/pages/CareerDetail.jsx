@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import JobApplicationModal from '../components/JobApplicationModal';
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 function CareerDetail() {
   const [selectedJob, setSelectedJob] = useState(null);
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ function CareerDetail() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/job/get/${id}`);
+        const response = await axios.get(`${API_DOMAIN}/job/get/${id}`);
         setSelectedJob(response.data || null);
         setSelectedJobId(response.data?.id)
       } catch (error) {
@@ -227,3 +229,5 @@ function CareerDetail() {
 }
 
 export default CareerDetail;
+
+

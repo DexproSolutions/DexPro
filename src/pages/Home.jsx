@@ -292,7 +292,8 @@ const onSubmit = async (e) => {
 
 try {
   const { data } = await axios.post(
-   `${API_DOMAIN}/ebook/download/${bookId}`,
+    `${API_DOMAIN}/ebook/download/${bookId}`,
+
     form,
     { headers: { 'Content-Type': 'application/json' } }
   );

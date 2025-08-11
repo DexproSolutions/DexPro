@@ -5,6 +5,7 @@ import { Phone, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
+  { title: 'Home', link: '/' },
   { title: 'Services', link: '#services' },
   { title: 'Projects', link: '#projects' },
   { title: 'About Us', link: '#about' },
@@ -12,7 +13,9 @@ const NAV_ITEMS = [
   { title: 'Our Blog', link: '/blogs' },
 ];
 
+
 export default function Navbar({ bgType = 'default' }) {
+
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,8 +50,16 @@ export default function Navbar({ bgType = 'default' }) {
   }, []);
 
   const navBg = isScrolled
-    ? (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900 shadow' : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white')
-    : (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900' : 'bg-transparent text-white');
+    ? bgType === 'blog'
+      ? 'bg-[#f7f7fa] text-gray-900 shadow'
+      : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white'
+    : bgType === 'blog'
+      ? 'bg-[#f7f7fa] text-gray-900'
+      : 'bg-transparent text-white';
+// =======
+//     ? (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900 shadow' : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white')
+//     : (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900' : 'bg-transparent text-white');
+// >>>>>>> dev
 
   return (
     <div>
@@ -136,3 +147,4 @@ export default function Navbar({ bgType = 'default' }) {
     </div>
   );
 }
+
