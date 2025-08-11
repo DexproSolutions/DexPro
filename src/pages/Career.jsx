@@ -31,6 +31,7 @@ function Career() {
       setIsLoading(true);
       try {
         const response = await axios.get(`${API_DOMAIN}/job/get-all`);
+
         setJobs(response.data || []);
       } catch (error) {
         console.error('Error fetching jobs:', error);
@@ -242,3 +243,4 @@ function Career() {
 }
 
 export default Career;
+

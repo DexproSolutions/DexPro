@@ -13,7 +13,9 @@ const NAV_ITEMS = [
   { title: 'Our Blog', link: '/blogs' },
 ];
 
-export default function Navbar({ bgType = '' }) {
+
+export default function Navbar({ bgType = 'default' }) {
+
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,6 +56,10 @@ export default function Navbar({ bgType = '' }) {
     : bgType === 'blog'
       ? 'bg-[#f7f7fa] text-gray-900'
       : 'bg-transparent text-white';
+// =======
+//     ? (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900 shadow' : 'bg-gradient-to-t from-[#100124] to-[#130129] backdrop-blur-sm text-white')
+//     : (bgType === 'blog' ? 'bg-[#f7f7fa] text-gray-900' : 'bg-transparent text-white');
+// >>>>>>> dev
 
   return (
     <div>
@@ -73,7 +79,9 @@ export default function Navbar({ bgType = '' }) {
               <a
                 key={idx}
                 href={link}
-                onClick={(e) => scrollToSection(e, link)}
+                onClick={(e) => {
+                  title === 'Our Blog' ? (navigate('/blogs')) : scrollToSection(e, link);
+                }}
                 className="hover:text-purple-300 text-lg transition-colors duration-200 cursor-pointer"
               >
                 {title}
@@ -108,7 +116,15 @@ export default function Navbar({ bgType = '' }) {
               <a
                 key={idx}
                 href={link}
-                onClick={(e) => scrollToSection(e, link)}
+                onClick={(e) => {
+                  if (title === 'Our Blog') {
+                    e.preventDefault();
+                    navigate('/blogs');
+                    setMenuOpen(false);
+                  } else {
+                    scrollToSection(e, link);
+                  }
+                }}
                 className="block hover:text-purple-300 transition-colors duration-200"
               >
                 {title}
@@ -131,3 +147,4 @@ export default function Navbar({ bgType = '' }) {
     </div>
   );
 }
+

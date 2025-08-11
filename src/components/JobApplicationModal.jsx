@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import axios from 'axios';
-
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 export default function JobApplicationModal({ onClose, jobId }) {
@@ -177,3 +176,4 @@ export default function JobApplicationModal({ onClose, jobId }) {
     </div>
   );
 }
+

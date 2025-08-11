@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import JobApplicationModal from '../components/JobApplicationModal';
 
-
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 function CareerDetail() {
@@ -230,3 +229,5 @@ function CareerDetail() {
 }
 
 export default CareerDetail;
+
+
