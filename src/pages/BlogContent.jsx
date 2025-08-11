@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-//import 'react-quill-new/dist/quill.core.css';
-//import 'react-quill-new/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.core.css';
+import 'react-quill-new/dist/quill.snow.css';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
