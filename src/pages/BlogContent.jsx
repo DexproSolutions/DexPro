@@ -36,13 +36,25 @@ const BlogDetails = () => {
     }, [blogId]);
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-      <div className="text-center text-gray-600 text-xl font-medium animate-pulse">Loading blog content...</div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#f7f7fa] to-[#e6e6ff] p-6">
+      <div className="flex flex-col items-center gap-4">
+        <svg className="animate-spin h-10 w-10 text-[#9859fe]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <div className="text-center text-[#602fea] text-xl font-semibold animate-pulse drop-shadow">Loading blog content...</div>
+      </div>
     </div>
   );
   if (!blog) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-      <div className="text-center text-red-600 text-xl font-semibold">Blog not found. It might have been moved or deleted.</div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#f7f7fa] to-[#e6e6ff] p-6">
+      <div className="flex flex-col items-center gap-4">
+        <svg className="h-10 w-10 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9l-6 6m0-6l6 6" />
+        </svg>
+        <div className="text-center text-red-600 text-xl font-bold drop-shadow">Blog not found.<br/>It might have been moved or deleted.</div>
+      </div>
     </div>
   );
 
