@@ -14,6 +14,8 @@ import CursorGlow from '../components/CursorGlow';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 function Career() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
@@ -28,7 +30,7 @@ function Career() {
     const getData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('http://localhost:3000/job/get-all');
+        const response = await axios.get(`${API_DOMAIN}/job/get-all`);
         setJobs(response.data || []);
       } catch (error) {
         console.error('Error fetching jobs:', error);

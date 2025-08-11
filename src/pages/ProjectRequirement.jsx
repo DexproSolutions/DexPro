@@ -9,6 +9,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 const ProjectRequirement = () => {
   const [servicesData, setServicesData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ const ProjectRequirement = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch("http://localhost:3000/services/get-all");
+        const res = await fetch(`${API_DOMAIN}/services/get-all`);
         const data = await res.json();
         setServicesData(data);
       } catch (err) {
@@ -117,7 +119,7 @@ const ProjectRequirement = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/project-requirements/save",
+        `${API_DOMAIN}/project-requirements/save`,
         formData
       );
 
