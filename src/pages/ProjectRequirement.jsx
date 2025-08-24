@@ -8,6 +8,7 @@ import CursorGlow from "../components/CursorGlow";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
+import MessageAlert from "../components/MessageAlert";
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
@@ -30,6 +31,7 @@ const ProjectRequirement = () => {
   // Submit state
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
   const [submitting, setSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const maxAdditionalLength = 500;
   const minBudget = 10000;
@@ -104,35 +106,33 @@ const ProjectRequirement = () => {
     setSubmitting(true);
     setSubmitStatus(null);
 
-    const formData = {
-      username,
-      email,
-      phone,
-      address,
-      selectedServices,
-      selectedSubServices,
-      projectTimeline,
-      additionalRequirements,
-      keepUpdated,
-      budgetRange,
-    };
-
     try {
-      const response = await axios.post(
-        `${API_DOMAIN}/project-requirements/save`,
-        formData
-      );
+      const response = await axios.post(`${API_DOMAIN}/project-requirements/save`, {
+        username,
+        email,
+        phone,
+        address,
+        selectedServices,
+        selectedSubServices,
+        projectTimeline,
+        additionalRequirements,
+        keepUpdated,
+        budgetRange,
+      });
 
       if (response.status === 200 || response.status === 201) {
         setSubmitStatus("success");
+        setShowAlert(true);
         resetForm(); // optional reset on success
         console.log("Submission success:", response.data);
       } else {
         setSubmitStatus("error");
+        setShowAlert(true);
         console.error("Unexpected response:", response.data);
       }
     } catch (error) {
       setSubmitStatus("error");
+      setShowAlert(true);
       console.error("Axios error:", error.response?.data || error.message);
     } finally {
       setSubmitting(false);
@@ -176,6 +176,7 @@ const ProjectRequirement = () => {
                 placeholder="Your full name"
               />
             </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></label>
               <input
@@ -187,6 +188,7 @@ const ProjectRequirement = () => {
                 placeholder="example@domain.com"
               />
             </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700">Phone <span className="text-red-500">*</span></label>
               <input
@@ -195,8 +197,10 @@ const ProjectRequirement = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Your phone number"
               />
             </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700">Address (optional)</label>
               <input
@@ -208,111 +212,200 @@ const ProjectRequirement = () => {
               />
             </div>
 
-
-            {/* Project Types (Service Titles) */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold mb-2">Project Types</h3>
+            {/* Project Types - Simple & Minimal */}
+            <div className="col-span-1 md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Project Types</h3>
+              
               {loading ? (
-                <Loader />
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-12 bg-gray-200 rounded-lg"></div>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                servicesData.map((service) => (
-                  <div key={service._id} className="flex items-center border rounded-lg px-4 py-3 border-gray-300">
-                    <input
-                      type="checkbox"
-                      value={service.title}
-                      checked={selectedServices.includes(service.title)}
-                      onChange={(e) => handleServiceChange(service.title, e.target.checked)}
-                      className="mr-3 accent-purple-800"
-                    />
-                    <span className="text-sm">{service.title}</span>
+                <div className="space-y-3">
+                  {servicesData.map((service) => {
+                    const isSelected = selectedServices.includes(service.title);
+                    return (
+                      <label
+                        key={service._id}
+                        className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? 'border-purple-500 bg-purple-50'
+                            : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => handleServiceChange(service.title, e.target.checked)}
+                          className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                        />
+                        <div className="ml-3 flex-1">
+                          <div className="font-medium text-gray-900">{service.title}</div>
+                          <div className="text-sm text-gray-500">
+                            {service.sub_services?.length || 0} features available
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Features - Simple & Minimal */}
+            <div className="col-span-1 md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Features</h3>
+
+              {selectedServices.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   </div>
-                ))
+                  <p className="text-gray-500 text-sm">Select a project type to view available features</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {selectedServices.map((title) => {
+                    const service = servicesData.find((s) => s.title === title);
+                    const selectedCount = selectedSubServices[title]?.length || 0;
+                    const totalCount = service?.sub_services?.length || 0;
+
+                    return (
+                      <div key={title} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-gray-900">{title}</h4>
+                          <span className="text-sm text-gray-500">
+                            {selectedCount} of {totalCount} selected
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {service?.sub_services?.map((sub, idx) => {
+                            const isSelected = selectedSubServices[title]?.includes(sub) || false;
+                            return (
+                              <label
+                                key={idx}
+                                className={`flex items-center p-3 rounded-md cursor-pointer transition-colors duration-200 ${
+                                  isSelected
+                                    ? 'bg-purple-50 border border-purple-200'
+                                    : 'hover:bg-gray-50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => handleSubServiceChange(title, sub, e.target.checked)}
+                                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                />
+                                <span className={`ml-2 text-sm ${
+                                  isSelected ? 'text-purple-800 font-medium' : 'text-gray-700'
+                                }`}>
+                                  {sub}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
 
             {/* Budget Range */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Budget Range</h3>
-            <div className="relative bg-gradient-to-br from-purple-50 via-white to-purple-100 p-6 rounded-2xl shadow-sm border border-purple-200">
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Budget Range</h3>
+              <div className="relative bg-gradient-to-br from-purple-50 via-white to-purple-100 p-6 rounded-2xl shadow-sm border border-purple-200">
 
-              {/* Slider Container with 3D effect */}
-              <div className="relative w-full h-12 flex items-center justify-center">
-                {/* Slider track background */}
-                <div className="absolute w-full h-3 bg-gradient-to-r from-purple-300 via-purple-100 to-purple-300 rounded-full shadow-inner" />
+                {/* Slider Container with 3D effect */}
+                <div className="relative w-full h-12 flex items-center justify-center">
+                  {/* Slider track background */}
+                  <div className="absolute w-full h-3 bg-gradient-to-r from-purple-300 via-purple-100 to-purple-300 rounded-full shadow-inner" />
 
-                {/* Slider input */}
-                <input
-                  type="range"
-                  min={minBudget}
-                  max={maxBudget}
-                  step={10000}
-                  value={budgetRange}
-                  onChange={(e) => setBudgetRange(parseInt(e.target.value))}
-                  className="w-full appearance-none bg-transparent cursor-pointer z-10"
-                />
+                  {/* Slider input */}
+                  <input
+                    type="range"
+                    min={minBudget}
+                    max={maxBudget}
+                    step={10000}
+                    value={budgetRange}
+                    onChange={(e) => setBudgetRange(parseInt(e.target.value))}
+                    className="w-full appearance-none bg-transparent cursor-pointer z-10"
+                  />
 
-                {/* Custom thumb using pseudo-3D */}
-                <style jsx>{`
-                  input[type='range']::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    appearance: none;
-                    height: 24px;
-                    width: 24px;
-                    background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
-                    border-radius: 50%;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-                    border: 2px solid white;
-                    margin-top: -10px;
-                    transition: transform 0.2s;
-                  }
+                  {/* Custom thumb using pseudo-3D */}
+                  <style jsx>{`
+                    input[type='range']::-webkit-slider-thumb {
+                      -webkit-appearance: none;
+                      appearance: none;
+                      height: 24px;
+                      width: 24px;
+                      background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
+                      border-radius: 50%;
+                      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                      border: 2px solid white;
+                      margin-top: -10px;
+                      transition: transform 0.2s;
+                    }
 
-                  input[type='range']::-webkit-slider-thumb:hover {
-                    transform: scale(1.2);
-                  }
+                    input[type='range']::-webkit-slider-thumb:hover {
+                      transform: scale(1.2);
+                    }
 
-                  input[type='range']::-moz-range-thumb {
-                    height: 24px;
-                    width: 24px;
-                    background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
-                    border-radius: 50%;
-                    border: 2px solid white;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-                    transition: transform 0.2s;
-                  }
+                    input[type='range']::-moz-range-thumb {
+                      height: 24px;
+                      width: 24px;
+                      background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
+                      border-radius: 50%;
+                      border: 2px solid white;
+                      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                      transition: transform 0.2s;
+                    }
 
-                  input[type='range']::-moz-range-thumb:hover {
-                    transform: scale(1.2);
-                  }
-                `}</style>
+                    input[type='range']::-moz-range-thumb:hover {
+                      transform: scale(1.2);
+                    }
+                  `}</style>
 
-                {/* Marker bubble */}
-                <div
-                  className="absolute -top-12 transform -translate-x-1/2 bg-purple-700 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-lg"
-                  style={{
-                    left: `${((budgetRange - minBudget) / (maxBudget - minBudget)) * 100}%`,
-                  }}
-                >
-                  {formatCurrency(budgetRange)}
-                  <div className="absolute left-1/2 -bottom-1 w-2 h-2 transform -translate-x-1/2 rotate-45 bg-purple-700"></div>
+                  {/* Marker bubble */}
+                  <div
+                    className="absolute -top-12 transform -translate-x-1/2 bg-purple-700 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-lg"
+                    style={{
+                      left: `${((budgetRange - minBudget) / (maxBudget - minBudget)) * 100}%`,
+                    }}
+                  >
+                    {formatCurrency(budgetRange)}
+                    <div className="absolute left-1/2 -bottom-1 w-2 h-2 transform -translate-x-1/2 rotate-45 bg-purple-700"></div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Budget Range Labels */}
-              <div className="mt-10 flex justify-between text-sm font-medium text-gray-700">
-                <div className="text-left">
-                  <p className="text-xs text-gray-500">Min</p>
-                  <p className="font-semibold">₹10,000</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-500">Max</p>
-                  <p className="font-semibold">₹50,00,000+</p>
+                {/* Budget Range Labels */}
+                <div className="mt-10 flex justify-between text-sm font-medium text-gray-700">
+                  <div className="text-left">
+                    <p className="text-xs text-gray-500">Min</p>
+                    <p className="font-semibold">₹10,000</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Max</p>
+                    <p className="font-semibold">₹50,00,000+</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-
-
 
             {/* Timeline */}
             <div>
@@ -340,40 +433,6 @@ const ProjectRequirement = () => {
                   );
                 })}
               </div>
-            </div>
-
-            {/* Features (Sub-Services) */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Features</h3>
-              {loading ? (
-                <Loader />
-              ) : selectedServices.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">Select a service to view features.</p>
-              ) : (
-                selectedServices.map((title) => {
-                  const service = servicesData.find((s) => s.title === title);
-                  return (
-                    <div key={title} className="mb-4">
-                      <h4 className="font-medium mb-2 text-sm">{title}</h4>
-                      <div className="ml-2 space-y-1">
-                        {service?.sub_services?.map((sub, idx) => (
-                          <label key={idx} className="flex items-center text-sm">
-                            <input
-                              type="checkbox"
-                              checked={selectedSubServices[title]?.includes(sub) || false}
-                              onChange={(e) =>
-                                handleSubServiceChange(title, sub, e.target.checked)
-                              }
-                              className="mr-2 accent-purple-600"
-                            />
-                            {sub}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
             </div>
 
             {/* Additional Requirements */}
@@ -414,25 +473,38 @@ const ProjectRequirement = () => {
                   submitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <p className="font-medium">{submitting ? "Submitting..." : "Submit Requirements"}</p>
-                <ArrowRight className="w-5 h-5 text-white" />
+                {submitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Submit Requirements</span>
+                    <ArrowRight className="w-5 h-5 text-white" />
+                  </>
+                )}
               </button>
             </div>
-
-            {/* Submission Feedback */}
-            {submitStatus === "success" && (
-              <p className="text-green-600 font-medium col-span-2 text-sm">
-                Your project requirements have been submitted successfully!
-              </p>
-            )}
-            {submitStatus === "error" && (
-              <p className="text-red-600 font-medium col-span-2 text-sm">
-                There was an error submitting the form. Please try again later.
-              </p>
-            )}
           </div>
         </form>
       </main>
+
+      {/* Message Alert */}
+      {showAlert && (
+        <MessageAlert
+          type={submitStatus === "success" ? "success" : "error"}
+          title={submitStatus === "success" ? "Success!" : "Error!"}
+          message={
+            submitStatus === "success" 
+              ? "Your project requirements have been submitted successfully! We'll get back to you soon."
+              : "There was an error submitting the form. Please try again later."
+          }
+          onClose={() => setShowAlert(false)}
+          autoClose={true}
+          duration={5000}
+        />
+      )}
 
       <Footer />
     </div>

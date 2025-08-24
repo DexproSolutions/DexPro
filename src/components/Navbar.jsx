@@ -14,7 +14,7 @@ const NAV_ITEMS = [
 ];
 
 
-export default function Navbar({ bgType = 'default' }) {
+export default function Navbar({ bgType = 'default', logo = Logo, showHome = true  }) {
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,7 +67,7 @@ export default function Navbar({ bgType = 'default' }) {
         <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3">
           {/* Logo */}
           <img
-            src={Logo}
+            src={logo}
             alt="Dexpro"
             className="cursor-pointer w-24 sm:w-28 md:w-32"
             onClick={() => navigate('/')}

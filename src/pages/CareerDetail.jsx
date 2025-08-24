@@ -12,6 +12,10 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import JobApplicationModal from '../components/JobApplicationModal';
+import CursorGlow from '../components/CursorGlow';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
@@ -19,8 +23,8 @@ function CareerDetail() {
   const [selectedJob, setSelectedJob] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
-    const [showApplicationModal, setShowApplicationModal] = useState(false);
-    const [selectedJobId, setSelectedJobId] = useState(null);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -36,194 +40,194 @@ function CareerDetail() {
   }, [id]);
 
   if (!selectedJob) {
-    return <div className="text-center py-10 text-gray-500">Loading job details...</div>;
+    return (
+      <div className="min-h-screen font-sans">
+        <Navbar />
+        <div className="flex justify-center items-center py-20">
+          <Loader type="ring" text="Loading job details..." size="large" />
+        </div>
+      </div>
+    );
   }
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'full-time':
-        return 'bg-blue-100 text-blue-800';
-      case 'part-time':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'freelance':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 px-4 md:px-10 py-10">
-      <div className="max-w-5xl mx-auto space-y-10">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-[#140228] cursor-pointer hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Listings
-        </button>
+    <div className="min-h-screen font-sans">
+      <section id="color-header" className="relative overflow-hidden sm:px-6 md:px-8 py-25 bg-gradient-to-b from-[#100124] to-[#1c003f]">
+        <CursorGlow targetId="color-header" />
+        <Navbar />
 
-        {/* Job Header Card */}
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-8">
-          <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
-            <div className="flex-1 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                    selectedJob.status === 'open'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  <BadgeCheck className="h-4 w-4" />
-                  {selectedJob.status === 'open' ? 'Open' : 'Closed'}
-                </span>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(
-                    selectedJob.type
-                  )}`}
-                >
-                  {selectedJob.type?.replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
-                </span>
-              </div>
+        <div className="w-full text-center">
+          <div className="bg-zinc-900 text-white px-4 py-1 rounded-full shadow text-sm inline-block">
+            <span className="text-purple-400 font-semibold">Job</span> Details
+          </div>
+          <h1 className="text-white text-4xl md:text-5xl font-bold mt-4">
+            {selectedJob.title}
+          </h1>
+          <p className="text-sm text-gray-300 mt-4 max-w-xl mx-auto">
+            {selectedJob.company} • {selectedJob.location}
+          </p>
+        </div>
+      </section>
 
-              <h1 className="text-3xl font-bold text-gray-900">{selectedJob.title}</h1>
+      <main className="bg-white">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center text-purple-600 hover:text-purple-700 mb-6 transition-colors duration-200"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Listings
+          </button>
 
-              <div className="flex flex-wrap items-center text-gray-600 gap-4">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {selectedJob.location}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Job Header Card */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <span
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                      selectedJob.status === 'open'
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    <BadgeCheck className="h-4 w-4" />
+                    {selectedJob.status === 'open' ? 'Open' : 'Closed'}
+                  </span>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                    {selectedJob.type?.replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  Posted on{' '}
-                  {new Date(selectedJob.created_at).toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
+
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedJob.title}</h2>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-600">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{selectedJob.location}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span className="text-sm">
+                      Posted on{' '}
+                      {new Date(selectedJob.created_at).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  {selectedJob.compensation && (
+                    <div className="flex items-center text-gray-600">
+                      <IndianRupee className="h-4 w-4 mr-2 text-green-600" />
+                      <span className="text-sm">{selectedJob.compensation}</span>
+                    </div>
+                  )}
                 </div>
-                {selectedJob.compensation && (
-                  <div className="flex items-center gap-1">
-                    <IndianRupee className="h-4 w-4 text-green-600" />
-                    {selectedJob.compensation}
+
+                {/* Skills */}
+                {selectedJob.skills?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedJob.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Apply Button */}
-            <div className="mt-4 lg:mt-0">
-              {selectedJob.status === 'open' ? (
-                <button
-                  onClick={()=>{
-                     setShowApplicationModal(true)
-                  }}
-                  className="inline-flex cursor-pointer items-center justify-center bg-[#140228] hover:bg-[#240346] text-white px-6 py-3 rounded-md text-sm font-medium transition"
-                >
-                  Apply Now <ExternalLink className="ml-2 h-4 w-4" />
-                </button>
-              ) : (
-                <button
-                  disabled
-                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-md text-sm font-medium cursor-not-allowed"
-                >
-                  Position Closed
-                </button>
+              {/* Job Description */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h3 className="flex items-center text-lg font-semibold text-gray-800 mb-4">
+                  <Info className="h-5 w-5 mr-2 text-purple-600" />
+                  Job Description
+                </h3>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {selectedJob.description}
+                </p>
+              </div>
+
+              {/* Requirements */}
+              {selectedJob.requirements?.length > 0 && (
+                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                  <h3 className="flex items-center text-lg font-semibold text-gray-800 mb-4">
+                    <BadgeCheck className="h-5 w-5 mr-2 text-purple-600" />
+                    Requirements
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    {selectedJob.requirements.map((req, idx) => (
+                      <li key={idx}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Skills */}
-          {selectedJob.skills?.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {selectedJob.skills.map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Description & Requirements */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="md:col-span-2 space-y-8">
-            <section>
-              <h2 className="flex items-center text-xl font-semibold text-gray-800 mb-2">
-                <Info className="h-5 w-5 mr-2" />
-                Job Description
-              </h2>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {selectedJob.description}
-              </p>
-            </section>
-
-            {selectedJob.requirements?.length > 0 && (
-              <section>
-                <h2 className="flex items-center text-xl font-semibold text-gray-800 mb-2">
-                  <BadgeCheck className="h-5 w-5 mr-2" />
-                  Requirements
-                </h2>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {selectedJob.requirements.map((req, idx) => (
-                    <li key={idx}>{req}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <aside className="space-y-6">
-            {selectedJob.status === 'open' && (
-              <div className="bg-[#f4eef7] border-[#e8dcef] rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-[#140228] mb-2">Ready to Apply?</h3>
-                <p className="text-sm text-[#2e084f] mb-4">
-                  Join our team and be part of something great. We're excited to meet you!
-                </p>
-                <button
-                  onClick={()=>{
-                     setShowApplicationModal(true)
-                  }}
-                  className="inline-block cursor-pointer px-6 py-2 text-sm font-medium bg-[#140228] hover:bg-[#240346] text-white rounded-md transition"
-                >
-                  Apply for this Job →
-                </button>
-              </div>
-            )}
-
-            {/* Optional company info section */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Company Info</h4>
-              <div className="text-sm text-gray-700 space-y-1">
-                <div className="flex justify-between">
-                  <span>Industry:</span>
-                  <span className="font-medium">Technology</span>
+            {/* Sidebar */}
+            <aside className="space-y-6">
+              {selectedJob.status === 'open' && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-purple-800 mb-2">Ready to Apply?</h3>
+                  <p className="text-sm text-purple-700 mb-4">
+                    Join our team and be part of something great. We're excited to meet you!
+                  </p>
+                  <button
+                    onClick={() => setShowApplicationModal(true)}
+                    className="w-full inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    Apply for this Job <ExternalLink className="ml-2 h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex justify-between">
-                  <span>Size:</span>
-                  <span className="font-medium">30–50 employees</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Founded:</span>
-                  <span className="font-medium">2024</span>
+              )}
+
+              {/* Company Info */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Company Info</h4>
+                <div className="text-sm text-gray-700 space-y-3">
+                  <div className="flex justify-between">
+                    <span>Industry:</span>
+                    <span className="font-medium">Technology</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Size:</span>
+                    <span className="font-medium">30–50 employees</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Founded:</span>
+                    <span className="font-medium">2024</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </aside>
+
+              {/* Apply Button for Mobile */}
+              {selectedJob.status === 'open' && (
+                <div className="lg:hidden">
+                  <button
+                    onClick={() => setShowApplicationModal(true)}
+                    className="w-full inline-flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Apply Now <ExternalLink className="ml-2 h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </aside>
+          </div>
         </div>
-      </div>
-          {showApplicationModal && (
-            <JobApplicationModal
-                jobId={selectedJobId}
-                onClose={() => setShowApplicationModal(false)}
-             />
-           )}
+
+        {showApplicationModal && (
+          <JobApplicationModal
+            jobId={selectedJobId}
+            onClose={() => setShowApplicationModal(false)}
+          />
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }

@@ -299,8 +299,8 @@ try {
   );
 
   if (data?.pdfUrl) {
-    const fileUrl = `${API_DOMAIN}/uploads/${data.pdfUrl}`;
-
+    // const fileUrl = `${API_DOMAIN}/uploads/${data.pdfUrl}`;
+    const fileUrl = `${data.pdfUrl}`;
     // Fetch the PDF as a blob
     const fileResponse = await axios.get(fileUrl, { responseType: 'blob' });
 
@@ -755,7 +755,9 @@ try {
 
         {/* Ebook CTA Section */}
       {booksLoading ? (
-        <Loader/>
+        <div className="py-20 bg-[#140228] flex justify-center items-center">
+          <Loader type="dots" text="Loading amazing ebooks for you..." size="large" />
+        </div>
       ) : books.length > 0 ? (
         <section
           className="py-16 sm:py-20 md:py-22 bg-[#140228] relative overflow-hidden"
@@ -847,7 +849,8 @@ try {
                     {/* Ebook Image */}
                     <div className="w-full md:w-1/2 flex justify-center items-center">
                       <img
-                        src={`${API_DOMAIN}/uploads/${book.image}`}
+                        // src={`${API_DOMAIN}/uploads/${book.image}`}
+                        src={book.image}
                         alt={`${book.title} cover`}
                         className="max-w-[90%] md:max-w-full h-auto object-contain"
                       />

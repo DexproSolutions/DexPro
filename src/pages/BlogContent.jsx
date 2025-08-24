@@ -6,6 +6,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import Navbar from '../components/Navbar';
 import Logo2 from '../assets/dex.png';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
@@ -37,13 +38,7 @@ const BlogDetails = () => {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#f7f7fa] to-[#e6e6ff] p-6">
-      <div className="flex flex-col items-center gap-4">
-        <svg className="animate-spin h-10 w-10 text-[#9859fe]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-        </svg>
-        <div className="text-center text-[#602fea] text-xl font-semibold animate-pulse drop-shadow">Loading blog content...</div>
-      </div>
+      <Loader type="ring" text="Loading blog content..." size="large" />
     </div>
   );
   if (!blog) return (
@@ -113,32 +108,50 @@ const BlogDetails = () => {
       </article>
      
      {/* Navigation for Previous and Next Blogs */}
-      <div className="flex justify-between items-center max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-8">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 sm:gap-8 lg:gap-12 max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 mt-16 mb-12">
         {prevBlog ? (
-          <button
-            onClick={() => window.location.href = `/blog/${prevBlog.slug}`}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
-            aria-label="Previous Blog"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Prev Blog
-          </button>
-        ) : <div />}
+          <div className="group relative flex-1 sm:flex-none">
+            <button
+              onClick={() => window.location.href = `/blog/${prevBlog.slug}`}
+              className="relative flex items-center gap-3 sm:gap-4 bg-white border border-gray-200 hover:border-purple-300 text-gray-700 hover:text-purple-700 font-medium px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-105 w-full sm:w-auto"
+              aria-label="Previous Blog"
+            >
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-purple-100 group-hover:bg-purple-200 rounded-xl sm:rounded-2xl transition-colors duration-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </div>
+              <div className="text-left min-w-0 flex-1">
+                <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1 hidden sm:block">Previous Article</div>
+                <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1 sm:hidden">Previous</div>
+                <div className="text-sm font-bold text-gray-800 line-clamp-2 max-w-full sm:max-w-32 md:max-w-40">{prevBlog.title}</div>
+                <div className="text-xs text-gray-400 mt-1 font-medium hidden sm:block">← Read this</div>
+              </div>
+            </button>
+          </div>
+        ) : <div className="flex-1 sm:flex-none" />}
 
         {nextBlog ? (
-          <button
-            onClick={() => window.location.href = `/blog/${nextBlog.slug}`}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#9859fe] to-[#602fea] hover:from-[#602fea] hover:to-[#9859fe] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
-            aria-label="Next Blog"
-          >
-            Next Blog
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        ) : <div />}
+          <div className="group relative flex-1 sm:flex-none sm:ml-auto">
+            <button
+              onClick={() => window.location.href = `/blog/${nextBlog.slug}`}
+              className="relative flex items-center gap-3 sm:gap-4 bg-white border border-gray-200 hover:border-purple-300 text-gray-700 hover:text-purple-700 font-medium px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-105 w-full sm:w-auto"
+              aria-label="Next Blog"
+            >
+              <div className="text-right min-w-0 flex-1">
+                <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1 hidden sm:block">Next Article</div>
+                <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1 sm:hidden">Next</div>
+                <div className="text-sm font-bold text-gray-800 line-clamp-2 max-w-full sm:max-w-32 md:max-w-40">{nextBlog.title}</div>
+                <div className="text-xs text-gray-400 mt-1 font-medium hidden sm:block">Read this →</div>
+              </div>
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-purple-100 group-hover:bg-purple-200 rounded-xl sm:rounded-2xl transition-colors duration-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          </div>
+        ) : <div className="flex-1 sm:flex-none sm:ml-auto" />}
       </div>
     </main>
       
